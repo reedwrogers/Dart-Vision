@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dart Scoring</title>
+</head>
+
+<body>
+    <h2>Dart Scoring System</h2>
+
+    <h3>Players</h3>
+    <input type="text" id="playerName" placeholder="Enter player name">
+    <button onclick="addPlayer()">Add Player</button>
+    <ul id="playerList"></ul>
+
+    <h3>Take a Photo</h3>
+    <video id="video" width="320" height="240" autoplay></video>
+    <button onclick="takePhoto()">Capture</button>
+    <canvas id="canvas" width="320" height="240" style="display: none;"></canvas>
+    <img id="photo" alt="Captured Image" style="display: none;">
+
+    <script>
+        let players = [];
+
+        function addPlayer() {
+            const name = document.getElementById("playerName").value;
+            if (name) {
+                players.push(name);
+                document.getElementById("playerName").value = "";
+                updatePlayerList();
+            }
+        }
+
+        function updatePlayerList() {
+            const list = document.getElementById("playerList");
+            list.innerHTML = "";
+            players.forEach(player => {
+                const li = document.createElement("li");
+                li.textContent = player;
+                list.appendChild(li);
+            });
+        }
+
+        const video = document.getElementById("video");
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => video.srcObject = stream)
+            .catch(err => console.error("Error accessing webcam:", err));
+
+        function takePhoto() {
+            const canvas = document.getElementById("canvas");
+            const context = canvas.getContext("2d");
+
+            // Draw video frame onto the canvas
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert canvas image to Data URL and assign it to the img element
+            const photo = document.getElementById("photo");
+            photo.src = canvas.toDataURL("image/png");
+            photo.style.display = "block"; // Make sure the image is visible
+
+            // Optional: Show the canvas for debugging
+            canvas.style.display = "block";
+        }
+
+    </script>
+</body>
+
+</html>
