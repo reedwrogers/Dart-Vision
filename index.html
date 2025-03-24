@@ -1,68 +1,121 @@
 <!DOCTYPE html>
+
+<script>
+
+navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+    .then(localMediaStream => {
+      if ('srcObject' in video) {
+        video.srcObject = localMediaStream;
+      } else {
+        video.src = window.URL.createObjectURL(localMediaStream);
+      }
+      video.play();
+    })
+    .catch(err => {
+      console.error(`Not available!!!!`, err);
+    });
+
+</script>
+<!-- Add this to your HTML -->
+<video id="video" width="320" height="240" autoplay></video>
+<canvas id="canvas" style="display:none;"></canvas>
+
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dart Scoring</title>
+    <title>Start Dart Game</title>
 </head>
 
 <body>
-    <h2>Dart Scoring System</h2>
+    <h1>Start Dart Game</h1>
+    <form id="gameForm" action="start_game.php" method="POST">
+        <label for="player1">Player 1:</label>
+        <input type="text" id="player1" name="player1" required><br><br>
 
-    <h3>Players</h3>
-    <input type="text" id="playerName" placeholder="Enter player name">
-    <button onclick="addPlayer()">Add Player</button>
-    <ul id="playerList"></ul>
+        <label for="player2">Player 2:</label>
+        <input type="text" id="player2" name="player2" required><br><br>
 
-    <h3>Take a Photo</h3>
-    <video id="video" width="320" height="240" autoplay></video>
-    <button onclick="takePhoto()">Capture</button>
-    <canvas id="canvas" width="320" height="240" style="display: none;"></canvas>
-    <img id="photo" alt="Captured Image" style="display: none;">
+        <button type="submit">Start Game</button>
+    </form>
+
+    <hr>
+
+    <h2>Capture Image</h2>
+    <button id="captureBtn">Capture Image</button>
+    <div id="imageContainer"></div>
 
     <script>
-        let players = [];
+        document.getElementById("gameForm").addEventListener("submit", function (event) {
+            event.preventDefault();
 
-        function addPlayer() {
-            const name = document.getElementById("playerName").value;
-            if (name) {
-                players.push(name);
-                document.getElementById("playerName").value = "";
-                updatePlayerList();
-            }
-        }
+            const player1 = document.getElementById("player1").value;
+            const player2 = document.getElementById("player2").value;
 
-        function updatePlayerList() {
-            const list = document.getElementById("playerList");
-            list.innerHTML = "";
-            players.forEach(player => {
-                const li = document.createElement("li");
-                li.textContent = player;
-                list.appendChild(li);
-            });
-        }
+            // Send the player data to PHP to start the game
+            fetch("start_game.php", {
+                method: "POST",
+                body: JSON.stringify({ player1, player2 }),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('Game started successfully! Game ID: ' + data.game_id);
+                    } else {
+                        alert('Error starting game: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error);
+                });
+        });
 
-        const video = document.getElementById("video");
+        // Initialize the camera and capture image functionality
         navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => video.srcObject = stream)
-            .catch(err => console.error("Error accessing webcam:", err));
+            .then(function (stream) {
+                const video = document.getElementById("video");
+                video.srcObject = stream;
+            })
+            .catch(function (err) {
+                console.log("Error accessing camera: " + err);
+            });
 
-        function takePhoto() {
+        // Capture image when the button is clicked
+        document.getElementById("captureBtn").addEventListener("click", function () {
             const canvas = document.getElementById("canvas");
+            const video = document.getElementById("video");
             const context = canvas.getContext("2d");
 
-            // Draw video frame onto the canvas
+            // Draw the current frame of the video to the canvas
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // Convert canvas image to Data URL and assign it to the img element
-            const photo = document.getElementById("photo");
-            photo.src = canvas.toDataURL("image/png");
-            photo.style.display = "block"; // Make sure the image is visible
+            // Get the image data from the canvas
+            const imgData = canvas.toDataURL("image/jpeg");
 
-            // Optional: Show the canvas for debugging
-            canvas.style.display = "block";
-        }
+            // Send the captured image to the server
+            fetch('capture_image.php', {
+                method: 'POST',
+                body: JSON.stringify({ image: imgData, player: 'Player 1' }), // Add actual player turn logic here
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        document.getElementById('imageContainer').innerHTML = 'Image captured and saved!';
+                    } else {
+                        alert('Error capturing image: ' + data.message);
+                    }
+                })
+                .catch(error => alert('Error: ' + error));
+        });
 
     </script>
 </body>
