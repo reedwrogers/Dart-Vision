@@ -1,36 +1,51 @@
 <?php
-// Set the content type to JSON
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 header('Content-Type: application/json');
 
-// Get the raw POST data
-$inputData = json_decode(file_get_contents("php://input"), true);
+// Database connection parameters (update with your details)
+$host = 'localhost';
+$dbname = 'darts';
+$user = 'dart_thrower';
+$password = 'darts';
 
-// Check if the image and player are provided
-if (isset($inputData['image']) && isset($inputData['player'])) {
-    $image = $inputData['image'];  // This is the base64-encoded image data
-    $player = $inputData['player'];
+$data = json_decode(file_get_contents('php://input'), true);
 
-    // Connect to PostgreSQL database
-    $dbconn = pg_connect("host=localhost dbname=darts user=dart_thrower password=darts");
+// Validate input
+if (empty($data['image']) || empty($data['player']) || empty($data['game_id'])) {
+    echo json_encode(['status' => 'error', 'message' => 'Invalid input.']);
+    exit;
+}
 
-    if (!$dbconn) {
-        echo json_encode(['status' => 'error', 'message' => 'Failed to connect to the database']);
-        exit;
-    }
+// Database connection
+try {
+    $pdo = new PDO("pgsql:host=$host;dbname=$dbname", $user, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    echo json_encode(['status' => 'error', 'message' => 'Database connection failed: ' . $e->getMessage()]);
+    exit;
+}
 
-    // Save the image to the database
-    $query = "UPDATE games SET image = $1 WHERE player1 = $2 OR player2 = $2";
-    $result = pg_query_params($dbconn, $query, array($image, $player));
+// Assuming you want to save the image as a Base64 string in the database
+$imageData = $data['image'];
+$player = $data['player'];
+$gameId = $data['game_id'];
 
-    if ($result) {
-        echo json_encode(['status' => 'success', 'message' => 'Image captured and saved successfully']);
-    } else {
-        echo json_encode(['status' => 'error', 'message' => 'Failed to save image']);
-    }
+// Remove the "data:image/png;base64," part if it exists
+$imageData = preg_replace('/^data:image\/\w+;base64,/', '', $imageData);
+$imageData = str_replace(' ', '+', $imageData); // Fix the base64 encoding issues
 
-    // Close the connection
-    pg_close($dbconn);
+// Prepare the SQL to insert into the images table
+$sql = "INSERT INTO images (game_id, player_name, image_data) VALUES (:game_id, :player_name, :image_data)";
+$stmt = $pdo->prepare($sql);
+$stmt->bindParam(':game_id', $gameId);
+$stmt->bindParam(':player_name', $player);
+$stmt->bindParam(':image_data', $imageData);
+
+// Execute the query
+if ($stmt->execute()) {
+    echo json_encode(['status' => 'success', 'message' => 'Image uploaded and saved successfully to the database!']);
 } else {
-    echo json_encode(['status' => 'error', 'message' => 'Missing image or player data']);
+    echo json_encode(['status' => 'error', 'message' => 'Failed to save image details to the database.']);
 }
 ?>

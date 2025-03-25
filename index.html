@@ -1,25 +1,3 @@
-<!DOCTYPE html>
-
-<script>
-
-navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-    .then(localMediaStream => {
-      if ('srcObject' in video) {
-        video.srcObject = localMediaStream;
-      } else {
-        video.src = window.URL.createObjectURL(localMediaStream);
-      }
-      video.play();
-    })
-    .catch(err => {
-      console.error(`Not available!!!!`, err);
-    });
-
-</script>
-<!-- Add this to your HTML -->
-<video id="video" width="320" height="240" autoplay></video>
-<canvas id="canvas" style="display:none;"></canvas>
-
 <html lang="en">
 
 <head>
@@ -42,14 +20,16 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
 
     <hr>
 
-    <h2>Capture Image</h2>
-    <button id="captureBtn">Capture Image</button>
+    <h2>Upload Image</h2>
+    <input type="file" id="imageUpload" accept="image/*">
     <div id="imageContainer"></div>
 
     <script>
+        // Add event listener to start game form submission
         document.getElementById("gameForm").addEventListener("submit", function (event) {
             event.preventDefault();
 
+            // Get player names from the form
             const player1 = document.getElementById("player1").value;
             const player2 = document.getElementById("player2").value;
 
@@ -65,6 +45,9 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
                 .then(data => {
                     if (data.status === 'success') {
                         alert('Game started successfully! Game ID: ' + data.game_id);
+
+                        // Store the game ID for use during image upload
+                        localStorage.setItem("game_id", data.game_id);
                     } else {
                         alert('Error starting game: ' + data.message);
                     }
@@ -74,49 +57,56 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: false })
                 });
         });
 
-        // Initialize the camera and capture image functionality
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function (stream) {
-                const video = document.getElementById("video");
-                video.srcObject = stream;
-            })
-            .catch(function (err) {
-                console.log("Error accessing camera: " + err);
-            });
+        // Handle image upload
+        document.getElementById("imageUpload").addEventListener("change", function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
 
-        // Capture image when the button is clicked
-        document.getElementById("captureBtn").addEventListener("click", function () {
-            const canvas = document.getElementById("canvas");
-            const video = document.getElementById("video");
-            const context = canvas.getContext("2d");
+                reader.onload = function (e) {
+                    // Log image data here
+                    console.log('Image Data:', e.target.result);
 
-            // Draw the current frame of the video to the canvas
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    // Display the uploaded image
+                    const imgElement = document.createElement("img");
+                    imgElement.src = e.target.result;
+                    imgElement.style.maxWidth = "320px";
+                    imgElement.style.maxHeight = "240px";
 
-            // Get the image data from the canvas
-            const imgData = canvas.toDataURL("image/jpeg");
+                    const imageContainer = document.getElementById("imageContainer");
+                    imageContainer.innerHTML = ''; // Clear previous images
+                    imageContainer.appendChild(imgElement);
 
-            // Send the captured image to the server
-            fetch('capture_image.php', {
-                method: 'POST',
-                body: JSON.stringify({ image: imgData, player: 'Player 1' }), // Add actual player turn logic here
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        document.getElementById('imageContainer').innerHTML = 'Image captured and saved!';
-                    } else {
-                        alert('Error capturing image: ' + data.message);
-                    }
-                })
-                .catch(error => alert('Error: ' + error));
+                    // Get the player names and game ID from the form or localStorage
+                    const player = document.getElementById("player1").value; // Assuming Player 1 is uploading the image
+                    const game_id = localStorage.getItem("game_id"); // Get the saved game ID
+
+                    // Send the uploaded image to the server
+                    fetch('capture_image.php', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            image: e.target.result,
+                            player: player,   // Use the actual player name
+                            game_id: game_id // Use the actual game ID
+                        }),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            alert('Image uploaded and saved!');
+                        } else {
+                            alert('Error capturing image: ' + data.message);
+                        }
+                    })
+                    .catch(error => alert('Error: ' + error));
+                };
+
+                reader.readAsDataURL(file); // Convert file to base64 string
+            }
         });
-
     </script>
 </body>
 
