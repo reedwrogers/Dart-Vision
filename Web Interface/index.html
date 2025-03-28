@@ -78,7 +78,10 @@
                     imageContainer.appendChild(imgElement);
 
                     // Get the player names and game ID from the form or localStorage
-                    const player = document.getElementById("player1").value; // Assuming Player 1 is uploading the image
+                    const player = document.getElementById("player1").value; // TODO - CHANGE THIS  ... right now we are assuming that player1 is always the thrower. Just add in some code
+                                                                             // to either automatically alternate between all players, or more likely take whovever the user selects in some
+                                                                             // way
+                                                                             
                     const game_id = localStorage.getItem("game_id"); // Get the saved game ID
 
                     // Send the uploaded image to the server
