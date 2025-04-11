@@ -1,28 +1,37 @@
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Start Dart Game</title>
+    <title>Dart Game Interface</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-    <h1>Start Dart Game</h1>
-    <form id="gameForm" action="start_game.php" method="POST">
-        <label for="player1">Player 1:</label>
-        <input type="text" id="player1" name="player1" required><br><br>
-
-        <label for="player2">Player 2:</label>
-        <input type="text" id="player2" name="player2" required><br><br>
-
-        <button type="submit">Start Game</button>
-    </form>
-
-    <hr>
-
-    <h2>Upload Image</h2>
-    <input type="file" id="imageUpload" accept="image/*">
-    <div id="imageContainer"></div>
+    <div class="container">
+        <h1>Dart Game Interface</h1>
+        <div class="game-setup">
+            <form id="gameForm" action="start_game.php" method="POST">
+                <div class="input-group">
+                    <label for="player1">Player 1:</label>
+                    <input type="text" id="player1" name="player1" required>
+                </div>
+                <div class="input-group">
+                    <label for="player2">Player 2:</label>
+                    <input type="text" id="player2" name="player2" required>
+                </div>
+                <button type="submit" class="btn">Start Game</button>
+            </form>
+        </div>
+        <div class="image-upload">
+            <h2>Upload Game Image</h2>
+            <label for="imageUpload" class="custom-file-upload">
+                <span>Choose File</span>
+                <input type="file" id="imageUpload" accept="image/*">
+            </label>
+            <div id="imageContainer"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
 
     <script>
         // Add event listener to start game form submission
