@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dart Game Interface</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="container">
         <h1>Dart Game Interface</h1>
@@ -88,9 +90,9 @@
 
                     // Get the player names and game ID from the form or localStorage
                     const player = document.getElementById("player1").value; // TODO - CHANGE THIS  ... right now we are assuming that player1 is always the thrower. Just add in some code
-                                                                             // to either automatically alternate between all players, or more likely take whovever the user selects in some
-                                                                             // way
-                                                                             
+                    // to either automatically alternate between all players, or more likely take whovever the user selects in some
+                    // way
+
                     const game_id = localStorage.getItem("game_id"); // Get the saved game ID
 
                     // Send the uploaded image to the server
@@ -105,15 +107,16 @@
                             'Content-Type': 'application/json'
                         }
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            alert('Image uploaded and saved!');
-                        } else {
-                            alert('Error capturing image: ' + data.message);
-                        }
-                    })
-                    .catch(error => alert('Error: ' + error));
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                alert('Image uploaded and saved!\nResult: ' + data.result);
+                            } else {
+                                alert('Error capturing image: ' + data.message);
+                            }
+                        })
+
+                        .catch(error => alert('Error: ' + error));
                 };
 
                 reader.readAsDataURL(file); // Convert file to base64 string

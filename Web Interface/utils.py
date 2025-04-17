@@ -24,7 +24,7 @@ import matplotlib.patches as patches
 
 def aruco_homography(img):
     # Load image
-    img = cv2.imread(img)
+    # img = cv2.imread(img)
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     
     # Define the ArUco dictionary and parameters
@@ -235,7 +235,10 @@ def get_tips_and_compute_score(rotated_aruco):
     # plt.tight_layout()
     # plt.show()
 
-    return scores
+    return json.dumps({
+        "status": "success",
+        "scores": scores
+    })
 
 def classify_dart_hit(x, y, regions):
     point = Point(x, y)
@@ -318,3 +321,65 @@ def run_workflow(img_original,img_blank):
     rotated_aruco = rotate_aruco(aruco_warped,img_blank)    
     # display_coco_regions(rotated_aruco, '../Sample Images/labels_updated_annotations_2025-04-15-06-40-23.json')
     get_tips_and_compute_score(rotated_aruco)
+
+def run_recent():
+    # Database connection parameters
+    hostname = 'localhost'
+    username = 'dart_thrower'
+    password = 'darts'
+    database = 'darts'
+    
+    # Connect to the PostgreSQL server
+    try:
+        connection = psycopg2.connect(
+            host=hostname,
+            user=username,
+            password=password,
+            dbname=database
+        )
+    
+        print("Connection to the database established successfully.")
+    
+        # Create a cursor object
+        cursor = connection.cursor()
+        
+        # Query to retrieve the image data
+        cursor.execute("SELECT image_data FROM images WHERE id = %s", (11,))  # Change the 1 to the ID of your image
+        image_data = cursor.fetchone()
+    
+        if image_data is not None:
+            # Print the type of image_data
+            print(f"Retrieved data type: {type(image_data[0])}")
+    
+            # Decode the Base64 string into bytes
+            image_bytes = base64.b64decode(image_data[0])
+    
+            # Create an image from the bytes
+            image = Image.open(BytesIO(image_bytes))
+            
+            # Display the image using matplotlib
+            img_original = rotate(image, angle=270, reshape=True)
+            # Convert to NumPy array
+            img_rgb = np.array(img_original)
+            # Convert RGB to BGR to match cv2.imread()
+            img_original = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
+            plt.imshow(img_original)
+            plt.axis('off')  # Hide the axis
+            plt.show()
+            img_blank = "/home/tars/Projects/Dart-Vision/Sample Images/template_aruco_blank.jpg"
+            run_workflow(img_original,img_blank)
+
+        else:
+            print("No image found with the specified ID.")
+    
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    
+    finally:
+        # Close the cursor and connection
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+run_recent()
