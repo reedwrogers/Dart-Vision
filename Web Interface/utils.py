@@ -1,24 +1,29 @@
+import os
+os.environ['MPLCONFIGDIR'] = '/tmp/matplotlib'
+
+import matplotlib
+matplotlib.use('Agg')
+
+
 from shapely.geometry import Point, Polygon
 import json
 import psycopg2
 from PIL import Image
 from io import BytesIO
 import base64
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from psycopg2 import sql
 from scipy.ndimage import rotate
 import cv2
 import numpy as np
 import sqlite3
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.ndimage import rotate
 import io
 import base64
 from PIL import Image
 import psycopg2
 from PIL import Image
-import matplotlib.pyplot as plt
 from io import BytesIO
 import matplotlib.patches as patches
 
@@ -139,7 +144,7 @@ def rotate_aruco(original, blank):
     # Save the rotated image with "_rotated" appended to the filename
     # cv2.imwrite("../Sample Images/best_rotation_image.jpg", best_rotated_img)
 
-    visualize_results(img1, img2, best_rotated_img, best_angle)
+    # visualize_results(img1, img2, best_rotated_img, best_angle)
     return best_rotated_img
 
 def visualize_results(img1, img2, best_rotated_img, best_angle):
@@ -217,7 +222,7 @@ def get_tips_and_compute_score(rotated_aruco):
     for x, y in dart_coords:
         label = classify_dart_hit(x, y, regions)
         scores.append(label)
-        print(f"Dart at ({x}, {y}) hit: {label}")
+        # print(f"Dart at ({x}, {y}) hit: {label}")
     
     # Show the cleaned mask and final image
     # plt.figure(figsize=(12, 10))
@@ -235,6 +240,11 @@ def get_tips_and_compute_score(rotated_aruco):
     # plt.tight_layout()
     # plt.show()
 
+    print(json.dumps({
+        "status": "success",
+        "scores": scores
+    }))
+
     return json.dumps({
         "status": "success",
         "scores": scores
@@ -250,7 +260,7 @@ def classify_dart_hit(x, y, regions):
 
 def create_annotations():
     
-    with open("../Sample Images/labels_updated_annotations_2025-04-15-07-00-25.json", "r") as f:
+    with open("/home/tars/Projects/Dart-Vision/Sample Images/labels_updated_annotations_2025-04-15-07-00-25.json", "r") as f:
         data = json.load(f)
     
     # Map category_id to category name
@@ -338,7 +348,7 @@ def run_recent():
             dbname=database
         )
     
-        print("Connection to the database established successfully.")
+        # print("Connection to the database established successfully.")
     
         # Create a cursor object
         cursor = connection.cursor()
@@ -349,7 +359,7 @@ def run_recent():
     
         if image_data is not None:
             # Print the type of image_data
-            print(f"Retrieved data type: {type(image_data[0])}")
+            # print(f"Retrieved data type: {type(image_data[0])}")
     
             # Decode the Base64 string into bytes
             image_bytes = base64.b64decode(image_data[0])
@@ -363,9 +373,9 @@ def run_recent():
             img_rgb = np.array(img_original)
             # Convert RGB to BGR to match cv2.imread()
             img_original = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
-            plt.imshow(img_original)
-            plt.axis('off')  # Hide the axis
-            plt.show()
+            # plt.imshow(img_original)
+            # plt.axis('off')  # Hide the axis
+            # plt.show()
             img_blank = "/home/tars/Projects/Dart-Vision/Sample Images/template_aruco_blank.jpg"
             run_workflow(img_original,img_blank)
 

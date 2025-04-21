@@ -6,6 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dart Game Interface</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .spinner {
+            border: 4px solid rgba(184, 6, 6, 0.116);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #09f;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+            margin-top: 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
 </head>
 
 <body>
@@ -31,6 +50,8 @@
                 <input type="file" id="imageUpload" accept="image/*">
             </label>
             <div id="imageContainer"></div>
+            <div id="scoreDisplay" class="score-display"></div>
+
         </div>
     </div>
     <script src="script.js"></script>
@@ -81,8 +102,8 @@
                     // Display the uploaded image
                     const imgElement = document.createElement("img");
                     imgElement.src = e.target.result;
-                    imgElement.style.maxWidth = "320px";
-                    imgElement.style.maxHeight = "240px";
+                    imgElement.style.width = "320px";
+                    imgElement.style.height = "240px";
 
                     const imageContainer = document.getElementById("imageContainer");
                     imageContainer.innerHTML = ''; // Clear previous images
@@ -94,6 +115,10 @@
                     // way
 
                     const game_id = localStorage.getItem("game_id"); // Get the saved game ID
+
+                    // Show loading spinner before making the request
+                    const scoreDiv = document.getElementById('scoreDisplay');
+                    scoreDiv.innerHTML = '<div class="spinner"></div>';
 
                     // Send the uploaded image to the server
                     fetch('capture_image.php', {
@@ -110,11 +135,17 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.status === 'success') {
-                                alert('Image uploaded and saved!\nResult: ' + data.result);
+                        
+                                const scores = Array.isArray(data.result.scores)
+                                    ? data.result.scores
+                                    : JSON.parse(data.result).scores;
+
+                                scoreDiv.innerHTML = `🎯 Scores: ${scores.join(', ')}`;
                             } else {
                                 alert('Error capturing image: ' + data.message);
                             }
                         })
+
 
                         .catch(error => alert('Error: ' + error));
                 };

@@ -6,6 +6,13 @@ body {
     background-color: #f4f4f4;
     color: #333;
   }
+
+  .score-display {
+    margin-top: 20px;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #222;
+}
   
   .container {
     max-width: 800px;
@@ -85,6 +92,12 @@ body {
     margin-top: 20px;
     text-align: center;
   }
+  #imageContainer img {
+    width: 320px;
+    height: 240px;
+    object-fit: cover; /* crop if needed */
+}
+
   
   #imageContainer img {
     max-width: 100%;
