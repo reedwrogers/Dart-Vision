@@ -240,6 +240,45 @@ def get_tips_and_compute_score(rotated_aruco):
     # plt.tight_layout()
     # plt.show()
 
+    # Store scores in the database
+    try:
+        conn = psycopg2.connect(
+            dbname="your_db_name",
+            user="your_username",
+            password="your_password",
+            host="localhost",
+            port="5432"
+        )
+        cur = conn.cursor()
+
+        # Get the most recent game_id
+        cur.execute("SELECT id FROM games ORDER BY created_at DESC LIMIT 1;")
+        game_id = cur.fetchone()[0]
+
+        # Get the last player to shoot
+        cur.execute("SELECT player_id FROM scores WHERE game_id = %s ORDER BY id DESC LIMIT 1;", (game_id,))
+        row = cur.fetchone()
+        last_player = row[0] if row else 2
+        next_player = 1 if last_player == 2 else 2
+
+        # Prepare bulk insert
+        records = [(game_id, next_player, s["score"], s["x"], s["y"]) for s in scores]
+        insert_query = """
+            INSERT INTO scores (game_id, player_id, score, x, y)
+            VALUES %s
+        """
+        execute_values(cur, insert_query, records)
+        conn.commit()
+        cur.close()
+        conn.close()
+
+    except Exception as e:
+        print(f"Database error: {e}")
+        return json.dumps({
+            "status": "error",
+            "message": str(e)
+        })
+
     print(json.dumps({
         "status": "success",
         "scores": scores
@@ -354,7 +393,7 @@ def run_recent():
         cursor = connection.cursor()
         
         # Query to retrieve the image data
-        cursor.execute("SELECT image_data FROM images WHERE id = %s", (11,))  # Change the 1 to the ID of your image
+        cursor.execute("SELECT image_data FROM images ORDER BY id DESC LIMIT 1") # Change the 1 to the ID of your image
         image_data = cursor.fetchone()
     
         if image_data is not None:
