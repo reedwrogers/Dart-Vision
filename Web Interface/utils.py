@@ -180,74 +180,57 @@ def load_images(image_path1, image_path2):
 
 def get_tips_and_compute_score(rotated_aruco):
     img = rotated_aruco
-    
+
     # Convert to HSV color space
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    
+
     # Neon yellow dart color range in HSV (tweak as needed)
     lower_yellow = np.array([25, 120, 120])
     upper_yellow = np.array([35, 255, 255])
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
-    
+
     # Morphological operations to clean up the mask
     kernel = np.ones((5, 5), np.uint8)
     mask_clean = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
     mask_clean = cv2.morphologyEx(mask_clean, cv2.MORPH_DILATE, kernel)
-    
+
     # Find contours
     contours, _ = cv2.findContours(mask_clean, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    
+
     dart_coords = []
-    
+
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        if area > 150:  # Adjust area threshold as needed
+        if area > 150:
             # Draw contour
             cv2.drawContours(img, [cnt], -1, (0, 255, 0), 2)
-    
+
             # Compute bounding box
             x, y, w, h = cv2.boundingRect(cnt)
-            cv2.rectangle(img, (x, y), (x+w, y+h), (0, 200, 200), 1)
-    
-            # Estimate dart tip as the rightmost point in the contour
-            tip_index = cnt[:, :, 0].argmax()  # max x-coordinate
+            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 200, 200), 1)
+
+            # Estimate dart tip
+            tip_index = cnt[:, :, 0].argmax()
             tip = tuple(cnt[tip_index][0])
             dart_coords.append(tip)
-            cv2.circle(img, tip, 8, (255, 0, 0), -1)  # Blue = estimated dart tip
+            cv2.circle(img, tip, 8, (255, 0, 0), -1)
 
     regions = create_annotations()
-    
+
     # Classify each detected dart tip
     scores = []
     for x, y in dart_coords:
         label = classify_dart_hit(x, y, regions)
         scores.append(label)
-        # print(f"Dart at ({x}, {y}) hit: {label}")
-    
-    # Show the cleaned mask and final image
-    # plt.figure(figsize=(12, 10))
-    
-    # plt.subplot(1, 2, 1)
-    # plt.imshow(mask_clean, cmap='gray')
-    # plt.title("Mask for Neon Yellow Darts")
-    # plt.axis('off')
-    
-    # plt.subplot(1, 2, 2)
-    # plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-    # plt.title("Detected Darts with Tip Marked")
-    # plt.axis('off')
-    
-    # plt.tight_layout()
-    # plt.show()
 
     # Store scores in the database
     try:
         conn = psycopg2.connect(
-            dbname="your_db_name",
-            user="your_username",
-            password="your_password",
-            host="localhost",
-            port="5432"
+            host='localhost',
+            dbname='darts',
+            user='dart_thrower',
+            password='darts',
+            port='5432'
         )
         cur = conn.cursor()
 
@@ -256,18 +239,24 @@ def get_tips_and_compute_score(rotated_aruco):
         game_id = cur.fetchone()[0]
 
         # Get the last player to shoot
-        cur.execute("SELECT player_id FROM scores WHERE game_id = %s ORDER BY id DESC LIMIT 1;", (game_id,))
+        cur.execute("SELECT player FROM scores WHERE game_id = %s ORDER BY id DESC LIMIT 1;", (game_id,))
         row = cur.fetchone()
-        last_player = row[0] if row else 2
-        next_player = 1 if last_player == 2 else 2
+        last_player = row[0] if row else "2"
+        next_player = "1" if last_player == "2" else "2"
 
-        # Prepare bulk insert
-        records = [(game_id, next_player, s["score"], s["x"], s["y"]) for s in scores]
+        # Pad or trim scores list to ensure 3 darts
+        # Convert "missed" to 0, pad/trim to 3 values
+        # print(scores)
+        dart_values = [0 if s == "missed" else s for s in scores]
+        dart_values += [None, None, None]
+        dart_values = dart_values[:3]
+        
         insert_query = """
-            INSERT INTO scores (game_id, player_id, score, x, y)
-            VALUES %s
+            INSERT INTO scores (game_id, player, dart1, dart2, dart3)
+            VALUES (%s, %s, %s, %s, %s)
         """
-        execute_values(cur, insert_query, records)
+        cur.execute(insert_query, (game_id, next_player, dart_values[0], dart_values[1], dart_values[2]))
+
         conn.commit()
         cur.close()
         conn.close()
@@ -281,13 +270,14 @@ def get_tips_and_compute_score(rotated_aruco):
 
     print(json.dumps({
         "status": "success",
-        "scores": scores
+        "scores": dart_values
     }))
 
     return json.dumps({
         "status": "success",
-        "scores": scores
+        "scores": dart_values
     })
+
 
 def classify_dart_hit(x, y, regions):
     point = Point(x, y)
