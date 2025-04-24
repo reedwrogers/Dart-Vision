@@ -247,7 +247,30 @@ def get_tips_and_compute_score(rotated_aruco):
         # Pad or trim scores list to ensure 3 darts
         # Convert "missed" to 0, pad/trim to 3 values
         # print(scores)
-        dart_values = [0 if s == "missed" else s for s in scores]
+        
+        # Convert "missed" to 0, handle doubles/triples/bullseyes
+        dart_values = []
+        for s in scores:
+            if s == "missed":
+                dart_values.append(0)
+            elif "double" in str(s).lower():
+                # Extract the number and multiply by 2
+                num = int(''.join(filter(str.isdigit, str(s))))
+                dart_values.append(num * 2)
+            elif "triple" in str(s).lower():
+                # Extract the number and multiply by 3
+                num = int(''.join(filter(str.isdigit, str(s))))
+                dart_values.append(num * 3)
+            elif "bullseye" in str(s).lower():
+                if "double" in str(s).lower():
+                    dart_values.append(50)  # Double bullseye
+                else:
+                    dart_values.append(25)  # Single bullseye
+            else:
+                # Regular number (convert to int if it's a string)
+                dart_values.append(int(s) if isinstance(s, str) and s.isdigit() else s)
+        
+        # Pad or trim scores list to ensure 3 darts
         dart_values += [None, None, None]
         dart_values = dart_values[:3]
         
