@@ -8,7 +8,7 @@ This guide will help you get started setting up your dart board, local database,
 
 ---
 
-## 🎯 Setting Up Your Dart Board
+## 📌 Setting Up Your Dart Board
 
 To achieve accurate scoring, make sure your dart board is properly set up:
 
@@ -117,7 +117,7 @@ CREATE TABLE scores (
 ```
 ✅ After running all of these commands, your database will be ready!
 
-# 📋 Extra Commands
+📋 Extra Commands
 
 If you want to inspect the database while developing:
 
