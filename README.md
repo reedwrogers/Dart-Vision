@@ -8,18 +8,6 @@ This guide will help you get started setting up your dart board, local database,
 
 ---
 
-## 📋 Table of Contents
-- [Setting Up Your Dart Board](#setting-up-your-dart-board)
-- [Setting Up Postgres Locally](#setting-up-postgres-locally)
-- [Cloning the Repository](#cloning-the-repository)
-- [Environment Configuration](#environment-configuration)
-- [Running the Application](#running-the-application)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
-
----
-
 ## 🎯 Setting Up Your Dart Board
 
 To achieve accurate scoring, make sure your dart board is properly set up:
