@@ -168,7 +168,7 @@ flutter pub get
 
 After setting up the environment:
 
-
+TODO ... talk about how I set up Apache web server to run locally, redirecting it to look in our repository for host files.
 
 The application should now be running!  
 Visit `http://192.168.40.72` (where the IP address is the local IP address of the machine you are hosting the service on)
@@ -180,18 +180,16 @@ Visit `http://192.168.40.72` (where the IP address is the local IP address of th
 ```bash
 dart-vision-scoring/
 │
-├── backend/               # API and server logic
-├── frontend/               # Flutter/Dart client (optional)
-├── database/               # SQL setup scripts, models
-├── images/                 # Example dart board images
+├── Python Files/           # Testing files where we discovered how to implement the workflow
+├── Sample Images/          # Contains tons of sample images for testing and templates
+├── Templates/              # Contains templates for the '20' & '3'
+├── Web Interface/          # The HTML, CSS, Javascript, Python, and PHP files needed for the front end
 ├── README.md               # This file
-├── requirements.txt        # Python dependencies
-└── .env.example            # Sample environment variables
+├── requirements.txt        # NEEDED!
 ```
-
 ---
 
-# 🔥 Quick Start
+# Quick Start
 
 ```bash
 # Install Postgres
