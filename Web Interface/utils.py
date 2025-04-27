@@ -4,11 +4,9 @@ os.environ['MPLCONFIGDIR'] = '/tmp/matplotlib'
 import matplotlib
 matplotlib.use('Agg')
 
-
 from shapely.geometry import Point, Polygon
 import json
 import psycopg2
-from PIL import Image
 from io import BytesIO
 import base64
 # import matplotlib.pyplot as plt
@@ -17,22 +15,19 @@ from scipy.ndimage import rotate
 import cv2
 import numpy as np
 import sqlite3
-import numpy as np
 from scipy.ndimage import rotate
 import io
 import base64
 from PIL import Image
 import psycopg2
-from PIL import Image
 from io import BytesIO
 import matplotlib.patches as patches
 
+# Computes a homography that warps a side image of the board to a front-facing image of the board in a 2000x2000 image
 def aruco_homography(img):
-    # Load image
-    # img = cv2.imread(img)
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     
-    # Define the ArUco dictionary and parameters
+    # Define the ArUco dictionary and parameters. We are using the "classic" dictionary
     dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_ARUCO_ORIGINAL)
     parameters = cv2.aruco.DetectorParameters()
     detector = cv2.aruco.ArucoDetector(dictionary, parameters)
@@ -57,7 +52,6 @@ def aruco_homography(img):
     
         # Check if all required markers were found
         if all(corner is not None for corner in id_to_corner.values()):
-            # Map corners based on your description
             src_rect = np.float32([
                 id_to_corner[7][0],  # Bottom Right (ID 7) -> Top Left
                 id_to_corner[10][1], # Top Right (ID 10) -> Bottom Left
@@ -69,47 +63,24 @@ def aruco_homography(img):
     else:
         raise ValueError("No ArUco markers detected.")
     
-    # Define the destination rectangle
+    # Define the destination rectangle... where we are warping our intial image to
     width = 2000
     height = 2000  
     dst_rect = np.float32([
         [width - 1, height - 1],  # id 7
         [width - 1, 0],           # id 10
-        [0, height - 1],  # id 9
-        [0,0]          # id 8
+        [0, height - 1],          # id 9
+        [0,0]                     # id 8
     ])
     
     # Compute transform and warp
     M = cv2.getPerspectiveTransform(src_rect, dst_rect)
     warped = cv2.warpPerspective(img, M, (width, height))
     warped_rgb = cv2.cvtColor(warped, cv2.COLOR_BGR2RGB)
-    
-    # Save the resulting warped image
-    # output_path = "/home/tars/Projects/Dart-Vision/Sample Images/aruco_result_3.jpg"
-    # cv2.imwrite(output_path, warped)
-    
-    # Plotting the results
-    # plt.figure(figsize=(14, 7))
-    
-    # plt.subplot(1, 2, 1)
-    # plt.imshow(img_rgb)
-    # if markerIds is not None:
-    #     for corner in markerCorners:
-    #         plt.scatter(corner[0][:, 0], corner[0][:, 1], c='red', s=30)
-    # plt.scatter(src_rect[:, 0], src_rect[:, 1], c='blue', s=30)  # Show the src_rect points
-    # plt.title("Original Image with Detected ArUco Markers")
-    # plt.axis('off')
-    
-    # plt.subplot(1, 2, 2)
-    # plt.imshow(warped_rgb)
-    # plt.title("Warped Frontal View of Dartboard")
-    # plt.axis('off')
-    
-    # plt.tight_layout()
-    # plt.show()
 
     return warped
 
+# Takes in our template image without darts, and the homography image. Returns a rotated image that minimizes MSE between the two images
 def find_best_rotation(img1, img2, angle_range=(-10, 10), step=1):
     best_angle = 0
     min_mse = float('inf')
@@ -127,49 +98,45 @@ def find_best_rotation(img1, img2, angle_range=(-10, 10), step=1):
 
     return best_angle, best_rotated_img
 
+# Simply resizes images if needed
 def resize_images(img1, img2):
-    # Resize img2 to match img1 if they are not the same size
     if img1.shape != img2.shape:
         img2 = cv2.resize(img2, (img1.shape[1], img1.shape[0]), interpolation=cv2.INTER_AREA)
     return img1, img2
 
+# Simply rotates the ArUco based on the best rotation found
 def rotate_aruco(original, blank):
-
     img1 = cv2.imread(blank)
 
     img2 = original
     img1, img2 = resize_images(img1, img2)
     best_angle, best_rotated_img = find_best_rotation(img1, img2, angle_range=(-10, 10), step=.5)
 
-    # Save the rotated image with "_rotated" appended to the filename
-    # cv2.imwrite("../Sample Images/best_rotation_image.jpg", best_rotated_img)
-
-    # visualize_results(img1, img2, best_rotated_img, best_angle)
     return best_rotated_img
 
-def visualize_results(img1, img2, best_rotated_img, best_angle):
-    # Plot the images
-    plt.figure(figsize=(12, 6))
-    plt.subplot(1, 3, 1)
-    plt.title('Image 1')
-    plt.imshow(cv2.cvtColor(img1, cv2.COLOR_BGR2RGB))
-    plt.axis('off')
+# def visualize_results(img1, img2, best_rotated_img, best_angle):
+#     # Plot the images
+#     plt.figure(figsize=(12, 6))
+#     plt.subplot(1, 3, 1)
+#     plt.title('Image 1')
+#     plt.imshow(cv2.cvtColor(img1, cv2.COLOR_BGR2RGB))
+#     plt.axis('off')
 
-    plt.subplot(1, 3, 2)
-    plt.title('Best Rotated Image (Angle: {})'.format(best_angle))
-    plt.imshow(cv2.cvtColor(best_rotated_img, cv2.COLOR_BGR2RGB))
-    plt.axis('off')
+#     plt.subplot(1, 3, 2)
+#     plt.title('Best Rotated Image (Angle: {})'.format(best_angle))
+#     plt.imshow(cv2.cvtColor(best_rotated_img, cv2.COLOR_BGR2RGB))
+#     plt.axis('off')
 
-    plt.subplot(1, 3, 3)
-    plt.title('Original Image 2')
-    plt.imshow(cv2.cvtColor(img2, cv2.COLOR_BGR2RGB))
-    plt.axis('off')
+#     plt.subplot(1, 3, 3)
+#     plt.title('Original Image 2')
+#     plt.imshow(cv2.cvtColor(img2, cv2.COLOR_BGR2RGB))
+#     plt.axis('off')
 
-    plt.tight_layout()
-    plt.show()
+#     plt.tight_layout()
+#     plt.show()
 
+# Loads images
 def load_images(image_path1, image_path2):
-    # Load the images
     img1 = cv2.imread(image_path1)
     img2 = cv2.imread(image_path2)
 
@@ -178,18 +145,19 @@ def load_images(image_path1, image_path2):
 
     return img1, img2
 
+# Locate the tips and return a score for each dart
 def get_tips_and_compute_score(rotated_aruco):
     img = rotated_aruco
 
     # Convert to HSV color space
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    # Neon yellow dart color range in HSV (tweak as needed)
+    # Neon yellow dart color range in HSV
     lower_yellow = np.array([25, 120, 120])
     upper_yellow = np.array([35, 255, 255])
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
 
-    # Morphological operations to clean up the mask
+    # Operations to clean up the mask
     kernel = np.ones((5, 5), np.uint8)
     mask_clean = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
     mask_clean = cv2.morphologyEx(mask_clean, cv2.MORPH_DILATE, kernel)
@@ -202,10 +170,10 @@ def get_tips_and_compute_score(rotated_aruco):
     for cnt in contours:
         area = cv2.contourArea(cnt)
         if area > 150:
-            # Draw contour
+            # Draw the contour
             cv2.drawContours(img, [cnt], -1, (0, 255, 0), 2)
 
-            # Compute bounding box
+            # Compute the bounding box
             x, y, w, h = cv2.boundingRect(cnt)
             cv2.rectangle(img, (x, y), (x + w, y + h), (0, 200, 200), 1)
 
@@ -223,7 +191,7 @@ def get_tips_and_compute_score(rotated_aruco):
         label = classify_dart_hit(x, y, regions)
         scores.append(label)
 
-    # Store scores in the database
+    # Store them in our local database 
     try:
         conn = psycopg2.connect(
             host='localhost',
@@ -243,10 +211,6 @@ def get_tips_and_compute_score(rotated_aruco):
         row = cur.fetchone()
         last_player = row[0] if row else "2"
         next_player = "1" if last_player == "2" else "2"
-
-        # Pad or trim scores list to ensure 3 darts
-        # Convert "missed" to 0, pad/trim to 3 values
-        # print(scores)
         
         # Convert "missed" to 0, handle doubles/triples/bullseyes
         dart_values = []
@@ -267,13 +231,14 @@ def get_tips_and_compute_score(rotated_aruco):
                 else:
                     dart_values.append(25)  # Single bullseye
             else:
-                # Regular number (convert to int if it's a string)
+                # Regular number
                 dart_values.append(int(s) if isinstance(s, str) and s.isdigit() else s)
         
         # Pad or trim scores list to ensure 3 darts
         dart_values += [None, None, None]
         dart_values = dart_values[:3]
-        
+
+        # Insert back into the database
         insert_query = """
             INSERT INTO scores (game_id, player, dart1, dart2, dart3)
             VALUES (%s, %s, %s, %s, %s)
@@ -301,7 +266,7 @@ def get_tips_and_compute_score(rotated_aruco):
         "scores": dart_values
     })
 
-
+# Just classify the dart based off of the manual region mapping we have (which we get from create_annotations())
 def classify_dart_hit(x, y, regions):
     point = Point(x, y)
     for region in regions:
@@ -310,8 +275,8 @@ def classify_dart_hit(x, y, regions):
             return region["label"]
     return "missed"
 
-def create_annotations():
-    
+# Create regions based off of our manual region mapping
+def create_annotations(): 
     with open("/home/tars/Projects/Dart-Vision/Sample Images/labels_updated_annotations_2025-04-15-07-00-25.json", "r") as f:
         data = json.load(f)
     
@@ -328,70 +293,71 @@ def create_annotations():
 
     return regions
 
+# Rotates the image
 def rotate_image(image, angle):
-    # Get the image dimensions
     (h, w) = image.shape[:2]
+    
     # Calculate the center of the image
     center = (w // 2, h // 2)
-    # Perform the rotation
+    
     M = cv2.getRotationMatrix2D(center, angle, 1.0)
     rotated = cv2.warpAffine(image, M, (w, h))
     return rotated
 
+# Calculate Mean Squared Error between two images
 def calculate_mse(img1, img2):
-    # Calculate Mean Squared Error between two images
     return np.mean((img1.astype(np.float32) - img2.astype(np.float32)) ** 2)
 
-def display_coco_regions(image, coco_json_path, image_id=1):
-    # Load COCO JSON
-    with open(coco_json_path, 'r') as f:
-        coco = json.load(f)
+# def display_coco_regions(image, coco_json_path, image_id=1):
+#     # Load COCO JSON
+#     with open(coco_json_path, 'r') as f:
+#         coco = json.load(f)
 
-    # Get category map (id → name)
-    cat_map = {cat['id']: cat['name'] for cat in coco['categories']}
+#     # Get category map (id → name)
+#     cat_map = {cat['id']: cat['name'] for cat in coco['categories']}
 
-    # Get annotations for the specific image
-    annotations = [ann for ann in coco['annotations'] if ann['image_id'] == image_id]
+#     # Get annotations for the specific image
+#     annotations = [ann for ann in coco['annotations'] if ann['image_id'] == image_id]
 
-    fig, ax = plt.subplots(figsize=(10, 10))
-    ax.imshow(image)
-    ax.set_title("COCO Dartboard Regions")
+#     fig, ax = plt.subplots(figsize=(10, 10))
+#     ax.imshow(image)
+#     ax.set_title("COCO Dartboard Regions")
 
-    for ann in annotations:
-        category_name = cat_map[ann['category_id']]
-        for seg in ann['segmentation']:
-            # Convert flat list to Nx2 array
-            poly = np.array(seg).reshape((-1, 2))
-            patch = patches.Polygon(poly, closed=True, fill=False, edgecolor='cyan', linewidth=2)
-            ax.add_patch(patch)
+#     for ann in annotations:
+#         category_name = cat_map[ann['category_id']]
+#         for seg in ann['segmentation']:
+#             # Convert flat list to Nx2 array
+#             poly = np.array(seg).reshape((-1, 2))
+#             patch = patches.Polygon(poly, closed=True, fill=False, edgecolor='cyan', linewidth=2)
+#             ax.add_patch(patch)
 
-            # Skip labeling bullseye and double bullseye
-            if category_name.lower() in ['bullseye', 'double bullseye']:
-                continue
+#             # Skip labeling bullseye and double bullseye
+#             if category_name.lower() in ['bullseye', 'double bullseye']:
+#                 continue
 
-            # Label in the center of the polygon
-            centroid = np.mean(poly, axis=0)
-            ax.text(centroid[0], centroid[1], category_name, color='white', fontsize=9,
-                    ha='center', va='center', weight='bold',
-                    bbox=dict(facecolor='black', alpha=0.5, boxstyle='round'))
+#             # Label in the center of the polygon
+#             centroid = np.mean(poly, axis=0)
+#             ax.text(centroid[0], centroid[1], category_name, color='white', fontsize=9,
+#                     ha='center', va='center', weight='bold',
+#                     bbox=dict(facecolor='black', alpha=0.5, boxstyle='round'))
 
-    plt.axis('off')
-    plt.show()
+#     plt.axis('off')
+#     plt.show()
 
+# Run the workflow to perform the whole process
 def run_workflow(img_original,img_blank):
     aruco_warped = aruco_homography(img_original)
     rotated_aruco = rotate_aruco(aruco_warped,img_blank)    
     # display_coco_regions(rotated_aruco, '../Sample Images/labels_updated_annotations_2025-04-15-06-40-23.json')
     get_tips_and_compute_score(rotated_aruco)
 
+# Essentially run_workflow, but ensures we use the most recently captured image from the database 
 def run_recent():
-    # Database connection parameters
     hostname = 'localhost'
     username = 'dart_thrower'
     password = 'darts'
     database = 'darts'
     
-    # Connect to the PostgreSQL server
     try:
         connection = psycopg2.connect(
             host=hostname,
@@ -399,36 +365,30 @@ def run_recent():
             password=password,
             dbname=database
         )
-    
-        # print("Connection to the database established successfully.")
-    
-        # Create a cursor object
+        
         cursor = connection.cursor()
         
         # Query to retrieve the image data
-        cursor.execute("SELECT image_data FROM images ORDER BY id DESC LIMIT 1") # Change the 1 to the ID of your image
+        cursor.execute("SELECT image_data FROM images ORDER BY id DESC LIMIT 1")
         image_data = cursor.fetchone()
     
-        if image_data is not None:
-            # Print the type of image_data
-            # print(f"Retrieved data type: {type(image_data[0])}")
-    
-            # Decode the Base64 string into bytes
+        if image_data is not None:    
+            # Decode the Base64 string into bytes.. Postgres is storing the image as base64
             image_bytes = base64.b64decode(image_data[0])
     
-            # Create an image from the bytes
             image = Image.open(BytesIO(image_bytes))
-            
-            # Display the image using matplotlib
+
+            # Rotate image
             img_original = rotate(image, angle=270, reshape=True)
-            # Convert to NumPy array
+            
             img_rgb = np.array(img_original)
+            
             # Convert RGB to BGR to match cv2.imread()
             img_original = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
-            # plt.imshow(img_original)
-            # plt.axis('off')  # Hide the axis
-            # plt.show()
+
+            # Grab the template image for use in the workflow
             img_blank = "/home/tars/Projects/Dart-Vision/Sample Images/template_aruco_blank.jpg"
+            
             run_workflow(img_original,img_blank)
 
         else:
@@ -438,7 +398,6 @@ def run_recent():
         print(f"An error occurred: {e}")
     
     finally:
-        # Close the cursor and connection
         if cursor:
             cursor.close()
         if connection:
