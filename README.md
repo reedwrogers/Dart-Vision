@@ -8,7 +8,7 @@ This guide will help you get started setting up your dart board, local database,
 
 ---
 
-## 📌 Setting Up Your Dart Board
+## Setting Up Your Dart Board
 
 To achieve accurate scoring, make sure your dart board is properly set up:
 
@@ -19,7 +19,7 @@ To achieve accurate scoring, make sure your dart board is properly set up:
 
 ---
 
-## 🛢️ Setting Up Postgres Locally
+## Setting Up Postgres Locally
 
 This project uses **PostgreSQL** as the backend database to store game sessions and scoring data. Some of these instructions assume you are using some sort of Linux device to host this database. 
 
@@ -115,9 +115,7 @@ CREATE TABLE scores (
     player TEXT
 );
 ```
-✅ After running all of these commands, your database will be ready!
-
-📋 Extra Commands
+After running all of these commands, your database will be ready!
 
 If you want to inspect the database while developing:
 
@@ -146,17 +144,9 @@ Example:
 ```
 ---
 
-# 🧹 Let me know if you want me to also give you a clean `.sql` file you can import instead of manually creating the tables! (Takes 1 command to set everything up.)  
-Would you like that too? 🚀
+## Cloning the Repository
 
-### Update your environment
-Make sure to set your database credentials correctly in the `.env` file (see [Environment Configuration](#environment-configuration)).
-
----
-
-## 📦 Cloning the Repository
-
-First, clone the repo to your local machine:
+First, clone the repo to your machine which will run the database/ front-end:
 
 ```bash
 git clone https://github.com/yourusername/dart-vision-scoring.git
@@ -172,54 +162,20 @@ pip install -r requirements.txt
 # If Dart/Flutter is involved for frontend:
 flutter pub get
 ```
-
-*(Adjust this based on your tech stack!)*
-
 ---
 
-## ⚙️ Environment Configuration
-
-Create a `.env` file in the project root:
-
-```bash
-touch .env
-```
-
-Add the following environment variables:
-
-```
-# Postgres
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=dart_vision_db
-DB_USER=dartvision_user
-DB_PASSWORD=yourpassword
-
-# (Optional) Other configuration
-FLASK_ENV=development
-SECRET_KEY=your_secret_key
-```
-
----
-
-## 🚀 Running the Application
+## Running the Application
 
 After setting up the environment:
 
-```bash
-# If it's a Flask backend:
-flask run
 
-# If there's a Dart/Flutter frontend:
-flutter run -d chrome
-```
 
 The application should now be running!  
-Visit `http://localhost:5000` (or wherever your frontend points) to start using Dart Vision Scoring.
+Visit `http://192.168.40.72` (where the IP address is the local IP address of the machine you are hosting the service on)
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```bash
 dart-vision-scoring/
@@ -235,25 +191,12 @@ dart-vision-scoring/
 
 ---
 
-## 🤝 Contributing
-
-Pull requests are welcome!  
-For major changes, please open an issue first to discuss what you would like to change.
-
----
-
-## 📜 License
-
-This project is licensed under the [MIT License](LICENSE).
-
----
-
 # 🔥 Quick Start
 
 ```bash
 # Install Postgres
 # Clone repo
-# Setup .env
+# ...
 # Run the app
 ```
 
