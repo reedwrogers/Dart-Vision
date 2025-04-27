@@ -164,6 +164,10 @@ flutter pub get
 ```
 ---
 
+## Setting up the Environment
+
+TODO .. but basically you will need to create a python environment called "jupyter" and install the required packages to it. That is the name of the environment I used to get this up and running, and the php script needs to activate this environment in order to run the script (on Linux this is required, because it forces you to use an environment when pip installing stuff).
+
 ## Running the Application
 
 After setting up the environment:
