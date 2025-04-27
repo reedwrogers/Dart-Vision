@@ -1,6 +1,8 @@
 # 🎯 Dart-Vision
 
-Welcome to **Dart Vision Scoring** — a system for automatically capturing and scoring dart games using computer vision!
+Welcome to **Dart-Vision** — a system for automatically capturing and scoring dart games using computer vision! This project was done for CS 445, Computational Photography, at the University of Illinois Urbana-Champaign.
+
+The project was used as a learning experience to conclude our course. It is still under development, and has several areas for improvement. 
 
 This guide will help you get started setting up your dart board, local database, and running the project.
 
@@ -24,15 +26,7 @@ To achieve accurate scoring, make sure your dart board is properly set up:
 
 1. **Mount your dart board** securely on a wall.
 2. **Lighting**: Ensure even lighting around the board to minimize shadows.
-3. **Camera placement**:  
-   - Position your camera facing the dart board directly.
-   - Recommended distance: about **6–8 feet**.
-   - The entire board should be fully visible in the camera frame.
-4. **Calibration**:
-   - Follow the in-app calibration steps (coming soon).
-   - Make sure the bullseye is centered and the board fills the view without distortion.
-
-> 📸 You can use any USB webcam or smartphone camera (with proper setup).
+3. **Calibration**: Place your ArUco markers in each corner of the dart board. 
 
 ---
 
@@ -119,8 +113,6 @@ FLASK_ENV=development
 SECRET_KEY=your_secret_key
 ```
 
-Adjust depending on your backend (Flask, FastAPI, etc.)
-
 ---
 
 ## 🚀 Running the Application
@@ -179,8 +171,3 @@ This project is licensed under the [MIT License](LICENSE).
 ```
 
 You're ready to play!
-
----
-
-Would you also want me to quickly mock up a simple `.env.example` file you can drop into the repo? 🚀
-It really helps new users!
