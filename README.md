@@ -2,7 +2,7 @@
 
 Welcome to **Dart-Vision** — a system for automatically capturing and scoring dart games using computer vision! This project was done for CS 445, Computational Photography, at the University of Illinois Urbana-Champaign.
 
-The project was used as a learning experience to conclude our course. It is still under development, and has several areas for improvement. 
+The project was used as a learning experience to conclude our course. It is still under development, and has several areas for improvement. Main goal was to get exposure to several key topics in computational photography through a real application.
 
 This guide will help you get started setting up your dart board, local database, and running the project.
 
@@ -26,13 +26,14 @@ To achieve accurate scoring, make sure your dart board is properly set up:
 
 1. **Mount your dart board** securely on a wall.
 2. **Lighting**: Ensure even lighting around the board to minimize shadows.
-3. **Calibration**: Place your ArUco markers in each corner of the dart board. 
+3. **Calibration**: Place your ArUco markers in each corner of the dart board.
+   - use the "classic" dictionary. Markers 7,8,9, and 10 are what should be used at this link: https://chev.me/arucogen/
 
 ---
 
 ## 🛢️ Setting Up Postgres Locally
 
-This project uses **PostgreSQL** as the backend database to store game sessions and scoring data.
+This project uses **PostgreSQL** as the backend database to store game sessions and scoring data. Some of these instructions assume you are using some sort of Linux device to host this database. 
 
 ### Install Postgres
 If you don't have Postgres installed yet:
