@@ -35,33 +35,131 @@ To achieve accurate scoring, make sure your dart board is properly set up:
 
 This project uses **PostgreSQL** as the backend database to store game sessions and scoring data. Some of these instructions assume you are using some sort of Linux device to host this database. 
 
-### Install Postgres
-If you don't have Postgres installed yet:
+You'll need to create a local Postgres database with the correct user, password, database, and schema.
+
+### Install PostgreSQL
+If you don't already have Postgres installed:
 
 ```bash
 sudo apt update
 sudo apt install postgresql postgresql-contrib
 ```
 
-Or use [Postgres Downloads](https://www.postgresql.org/download/) for your platform.
+---
 
-### Create a Database
+### Create the Database, User, and Schema
 
-After installing Postgres:
+1. **Switch to the `postgres` user:**
 
 ```bash
-# Switch to the postgres user
 sudo -i -u postgres
+```
 
-# Create a new database
-createdb dart_vision_db
+2. **Create the database user (`dart_thrower`) and database (`darts`):**
 
-# (Optional) Create a user and set a password
+```bash
 psql
-CREATE USER dartvision_user WITH PASSWORD 'yourpassword';
-GRANT ALL PRIVILEGES ON DATABASE dart_vision_db TO dartvision_user;
+```
+
+Inside `psql`, run:
+
+```sql
+-- Create the user
+CREATE USER dart_thrower WITH PASSWORD 'darts';
+
+-- Create the database
+CREATE DATABASE darts OWNER dart_thrower;
+
+-- Grant all privileges on the database to the user
+GRANT ALL PRIVILEGES ON DATABASE darts TO dart_thrower;
+
 \q
 ```
+
+3. **Connect to the new database:**
+
+```bash
+psql -h localhost -U dart_thrower -d darts
+```
+*(It'll prompt you for the password: `darts`)*
+
+---
+
+### Create the Tables
+
+Inside the `psql` session for `darts`, run the following SQL to create your schema:
+
+```sql
+-- Create "games" table
+CREATE TABLE games (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT now()
+);
+
+-- Create "images" table
+CREATE TABLE images (
+    id SERIAL PRIMARY KEY,
+    game_id INTEGER REFERENCES games(id) ON DELETE CASCADE,
+    player_name TEXT NOT NULL,
+    image_data TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT now()
+);
+
+-- Create "processed_images" table
+CREATE TABLE processed_images (
+    id SERIAL PRIMARY KEY,
+    dart_1 INTEGER,
+    dart_2 INTEGER,
+    dart_3 INTEGER,
+    game_id INTEGER REFERENCES games(id),
+    player_name TEXT,
+    processed_image BYTEA
+);
+
+-- Create "scores" table
+CREATE TABLE scores (
+    id SERIAL PRIMARY KEY,
+    game_id INTEGER NOT NULL REFERENCES games(id),
+    dart1 INTEGER,
+    dart2 INTEGER,
+    dart3 INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    player TEXT
+);
+```
+✅ After running all of these commands, your database will be ready!
+
+# 📋 Extra Commands
+
+If you want to inspect the database while developing:
+
+- Connect to the database:
+
+```bash
+psql -h localhost -U dart_thrower -d darts
+```
+
+- List all tables:
+
+```sql
+\dt
+```
+
+- View a table's structure:
+
+```sql
+\d tablename
+```
+
+Example:
+
+```sql
+\d games
+```
+---
+
+# 🧹 Let me know if you want me to also give you a clean `.sql` file you can import instead of manually creating the tables! (Takes 1 command to set everything up.)  
+Would you like that too? 🚀
 
 ### Update your environment
 Make sure to set your database credentials correctly in the `.env` file (see [Environment Configuration](#environment-configuration)).
