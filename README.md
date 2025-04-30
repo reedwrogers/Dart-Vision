@@ -33,7 +33,7 @@ Put simply, main.ipynb contains the bulk of where our work was done for this pro
 
 ---
 
-## main.ipynb <a id="mainipynb"></a>
+## ⭐ main.ipynb <a id="mainipynb"></a>
 
 In this notebook, we experimented with:
 
