@@ -6,6 +6,21 @@ It was used as a learning experience to conclude our course and is still under d
 
 ---
 
+## Project Structure
+
+```bash
+dart-vision-scoring/
+│
+├── Python Files/           # Experimental notebooks and image-processing code
+├── Sample Images/          # Contains sample dart images
+├── Templates/              # Templates used for number/segment recognition
+├── Web Interface/          # HTML, CSS, JS, PHP, and Python for frontend/backend
+├── README.md               # This file
+├── requirements.txt        # Python requirements
+```
+
+---
+
 ## Glossary
 
 This repository is divided into two main parts:
@@ -192,21 +207,6 @@ http://192.168.40.72
 ```
 
 Replace that with the IP of your local server.
-
----
-
-## Project Structure
-
-```bash
-dart-vision-scoring/
-│
-├── Python Files/           # Experimental notebooks and image-processing code
-├── Sample Images/          # Contains sample dart images
-├── Templates/              # Templates used for number/segment recognition
-├── Web Interface/          # HTML, CSS, JS, PHP, and Python for frontend/backend
-├── README.md               # This file
-├── requirements.txt        # Python requirements
-```
 
 ---
 
