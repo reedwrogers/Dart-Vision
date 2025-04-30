@@ -29,6 +29,7 @@ This repository is divided into two main parts:
   
 - **[Local Web App Implementation of Dart-Vision](#setting-up-your-dart-board)** — the **front-end web application**, where we configure a working system to score darts in real-time using a phone camera, a local server, and a Postgres backend. In this seciton, you can set up our system to run at home with your own dartboard.
 
+Put simply, main.ipynb contains the bulk of where our work was done for this project - look there for more information on our thought processes and ideas for dart-vision. The section for the web app is really just a proof-of-concept on how we might apply our methods into some sort of application for an end-user. If you have no interest in running the system locally, you can ignore that section, or simply view our video for an idea of how the system works on the front-end (<a href="https://github.com/reedwrogers/Dart-Vision/blob/main/Python%20Files/main.ipynb">here</a> ).
 ---
 
 ## main.ipynb <a id="mainipynb"></a>
