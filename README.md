@@ -23,10 +23,12 @@ In this notebook, we experimented with:
 - Different image processing techniques to isolate dart tips
 - Use of ArUco markers for board calibration
 - Matching templates for numbers or segments
-- Custom scoring heuristics
+- Use of machine learning and object segmentation for region detection
 - Accuracy testing on sample images
 
-You can find the notebook inside the `Python Files/` directory. It documents the full journey from raw image input to a working scoring prototype.
+While we used a more manual, potentially less "smart" method of scoring darts for our proof-of-concept of the front-end application, our experimentation and learning with different computaitonal photography methods as it relates to this problem occured within this notebook. Please browse our clearly documented methods as you see how we approached solving the problem of automatic dart scoring in several different ways. 
+
+You can find the notebook inside the `Python Files/` directory, or click this link <a href="https://github.com/reedwrogers/Dart-Vision/blob/main/Python%20Files/main.ipynb">here.</a> 
 
 ---
 
