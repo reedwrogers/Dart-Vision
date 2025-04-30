@@ -1,55 +1,75 @@
-# 🎯 Dart-Vision
-
-Welcome to **Dart-Vision** — a system for automatically capturing and scoring dart games using computer vision! This project was done for CS 445, Computational Photography, at the University of Illinois Urbana-Champaign.
-
-The project was used as a learning experience to conclude our course. It is still under development, and has several areas for improvement. Main goal was to get exposure to several key topics in computational photography through a real application.
-
-This guide will help you get started setting up your dart board, local database, and running the project.
+Here's a revised version of your README with a **Glossary** section at the top, and links to both parts of the project. I’ve also improved clarity and structure slightly throughout the document, but kept your original tone and intent intact.
 
 ---
 
-## Setting Up Your Dart Board
+# 🎯 Dart-Vision
+
+Welcome to **Dart-Vision** — a system for automatically capturing and scoring dart games using computer vision! This project was built for CS 445: *Computational Photography* at the University of Illinois Urbana-Champaign.
+
+It was used as a learning experience to conclude our course and is still under development. The main goal was to gain hands-on experience with several key topics in computational photography through a real-world application.
+
+---
+
+## 📘 Glossary
+
+This repository is divided into two main parts:
+
+- **[main.ipynb](#mainipynb)** — our primary **Jupyter Notebook**, where we explored and tested multiple methods of detecting and scoring darts using computer vision. This was the core of our experimentation and learning.
+  
+- **[Setting Up Your Dart Board](#setting-up-your-dart-board)** — the **production pipeline**, where we configure a working system to score darts in real-time using a phone camera, a local server, and a Postgres backend.
+
+---
+
+## 🧪 main.ipynb
+
+In this notebook, we experimented with:
+
+- Different image processing techniques to isolate dart tips
+- Use of ArUco markers for board calibration
+- Matching templates for numbers or segments
+- Custom scoring heuristics
+- Accuracy testing on sample images
+
+You can find the notebook inside the `Python Files/` directory. It documents the full journey from raw image input to a working scoring prototype.
+
+---
+
+## 🛠️ Setting Up Your Dart Board
 
 To achieve accurate scoring, make sure your dart board is properly set up:
 
 1. **Mount your dart board** securely on a wall.
 2. **Lighting**: Ensure even lighting around the board to minimize shadows.
 3. **Calibration**: Place your ArUco markers in each corner of the dart board.
-   - use the "classic" dictionary. Markers 7,8,9, and 10 are what should be used at this link: https://chev.me/arucogen/
+   - Use the "classic" dictionary.
+   - Markers 7, 8, 9, and 10 should be used, generated from [https://chev.me/arucogen/](https://chev.me/arucogen/)
 
 ---
 
-## Setting Up Postgres Locally
+## 🗄️ Setting Up Postgres Locally
 
-This project uses **PostgreSQL** as the backend database to store game sessions and scoring data. Some of these instructions assume you are using some sort of Linux device to host this database. 
-
-You'll need to create a local Postgres database with the correct user, password, database, and schema.
+This project uses **PostgreSQL** as the backend database to store game sessions and scoring data.
 
 ### Install PostgreSQL
-If you don't already have Postgres installed:
 
 ```bash
 sudo apt update
 sudo apt install postgresql postgresql-contrib
 ```
 
----
-
 ### Create the Database, User, and Schema
 
-1. **Switch to the `postgres` user:**
+1. Switch to the `postgres` user:
 
 ```bash
 sudo -i -u postgres
 ```
 
-2. **Create the database user (`dart_thrower`) and database (`darts`):**
+2. Create the user and database:
 
 ```bash
 psql
 ```
-
-Inside `psql`, run:
 
 ```sql
 -- Create the user
@@ -58,33 +78,32 @@ CREATE USER dart_thrower WITH PASSWORD 'darts';
 -- Create the database
 CREATE DATABASE darts OWNER dart_thrower;
 
--- Grant all privileges on the database to the user
+-- Grant privileges
 GRANT ALL PRIVILEGES ON DATABASE darts TO dart_thrower;
 
 \q
 ```
 
-3. **Connect to the new database:**
+3. Connect to the database:
 
 ```bash
 psql -h localhost -U dart_thrower -d darts
 ```
-*(It'll prompt you for the password: `darts`)*
+
+Password: `darts`
 
 ---
 
 ### Create the Tables
 
-Inside the `psql` session for `darts`, run the following SQL to create your schema:
+Run the following schema:
 
 ```sql
--- Create "games" table
 CREATE TABLE games (
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMP DEFAULT now()
 );
 
--- Create "images" table
 CREATE TABLE images (
     id SERIAL PRIMARY KEY,
     game_id INTEGER REFERENCES games(id) ON DELETE CASCADE,
@@ -93,7 +112,6 @@ CREATE TABLE images (
     created_at TIMESTAMP DEFAULT now()
 );
 
--- Create "processed_images" table
 CREATE TABLE processed_images (
     id SERIAL PRIMARY KEY,
     dart_1 INTEGER,
@@ -104,7 +122,6 @@ CREATE TABLE processed_images (
     processed_image BYTEA
 );
 
--- Create "scores" table
 CREATE TABLE scores (
     id SERIAL PRIMARY KEY,
     game_id INTEGER NOT NULL REFERENCES games(id),
@@ -115,15 +132,10 @@ CREATE TABLE scores (
     player TEXT
 );
 ```
-After running all of these commands, your database will be ready!
 
-If you want to inspect the database while developing:
+---
 
-- Connect to the database:
-
-```bash
-psql -h localhost -U dart_thrower -d darts
-```
+## 🔍 Inspecting the Database
 
 - List all tables:
 
@@ -131,7 +143,7 @@ psql -h localhost -U dart_thrower -d darts
 \dt
 ```
 
-- View a table's structure:
+- View a table’s structure:
 
 ```sql
 \d tablename
@@ -142,11 +154,10 @@ Example:
 ```sql
 \d games
 ```
+
 ---
 
-## Cloning the Repository
-
-First, clone the repo to your machine which will run the database/ front-end:
+## 📦 Cloning the Repository
 
 ```bash
 git clone https://github.com/yourusername/dart-vision-scoring.git
@@ -156,50 +167,59 @@ cd dart-vision-scoring
 Install dependencies:
 
 ```bash
-# If using Python backend
-pip install -r requirements.txt
-
-# If Dart/Flutter is involved for frontend:
-flutter pub get
+pip install -r requirements.txt       # For Python backend
+flutter pub get                      # If using Flutter frontend
 ```
----
-
-## Setting up the Environment
-
-TODO .. but basically you will need to create a python environment called "jupyter" and install the required packages to it. That is the name of the environment I used to get this up and running, and the php script needs to activate this environment in order to run the script (on Linux this is required, because it forces you to use an environment when pip installing stuff).
-
-## Running the Application
-
-After setting up the environment:
-
-TODO ... talk about how I set up Apache web server to run locally, redirecting it to look in our repository for host files.
-
-The application should now be running!  
-Visit `http://192.168.40.72` (where the IP address is the local IP address of the machine you are hosting the service on)
 
 ---
 
-## Project Structure
+## ⚙️ Setting up the Environment
+
+Create a Python environment called `jupyter` and install the required packages. This is necessary because the PHP scripts are configured to run inside this environment (on Linux).
+
+*TODO: Add specific environment setup instructions.*
+
+---
+
+## 🚀 Running the Application
+
+The app runs on a local web server.
+
+*TODO: Add details on how you configured Apache (or other web server) to host this.*
+
+Once configured, you can visit your web app in a browser:
+
+```
+http://192.168.40.72
+```
+
+Replace that with the IP of your local server.
+
+---
+
+## 🗂️ Project Structure
 
 ```bash
 dart-vision-scoring/
 │
-├── Python Files/           # Testing files where we discovered how to implement the workflow
-├── Sample Images/          # Contains tons of sample images for testing and templates
-├── Templates/              # Contains templates for the '20' & '3'
-├── Web Interface/          # The HTML, CSS, Javascript, Python, and PHP files needed for the front end
+├── Python Files/           # Experimental notebooks and image-processing code
+├── Sample Images/          # Contains sample dart images
+├── Templates/              # Templates used for number/segment recognition
+├── Web Interface/          # HTML, CSS, JS, PHP, and Python for frontend/backend
 ├── README.md               # This file
-├── requirements.txt        # NEEDED!
+├── requirements.txt        # Python requirements
 ```
+
 ---
 
-# Quick Start
+## ✅ Quick Start Summary
 
 ```bash
-# Install Postgres
-# Clone repo
-# ...
-# Run the app
+# 1. Install PostgreSQL
+# 2. Clone the repo
+# 3. Set up the database
+# 4. Configure the web server
+# 5. Run the app
 ```
 
-You're ready to play!
+You're ready to play darts with vision-based scoring!
