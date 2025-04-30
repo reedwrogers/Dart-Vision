@@ -1,7 +1,3 @@
-Here's a revised version of your README with a **Glossary** section at the top, and links to both parts of the project. I’ve also improved clarity and structure slightly throughout the document, but kept your original tone and intent intact.
-
----
-
 # 🎯 Dart-Vision
 
 Welcome to **Dart-Vision** — a system for automatically capturing and scoring dart games using computer vision! This project was built for CS 445: *Computational Photography* at the University of Illinois Urbana-Champaign.
@@ -10,7 +6,7 @@ It was used as a learning experience to conclude our course and is still under d
 
 ---
 
-## 📘 Glossary
+## Glossary
 
 This repository is divided into two main parts:
 
@@ -20,7 +16,7 @@ This repository is divided into two main parts:
 
 ---
 
-## 🧪 main.ipynb <a id="mainipynb"></a>
+## main.ipynb <a id="mainipynb"></a>
 
 In this notebook, we experimented with:
 
@@ -34,7 +30,7 @@ You can find the notebook inside the `Python Files/` directory. It documents the
 
 ---
 
-## 🛠️ Setting Up Your Dart Board <a id="setting-up-your-dart-board"></a>
+## Setting Up Your Dart Board <a id="setting-up-your-dart-board"></a>
 
 To achieve accurate scoring, make sure your dart board is properly set up:
 
@@ -46,7 +42,7 @@ To achieve accurate scoring, make sure your dart board is properly set up:
 
 ---
 
-## 🗄️ Setting Up Postgres Locally
+## Setting Up Postgres Locally
 
 This project uses **PostgreSQL** as the backend database to store game sessions and scoring data.
 
@@ -135,7 +131,7 @@ CREATE TABLE scores (
 
 ---
 
-## 🔍 Inspecting the Database
+## Inspecting the Database
 
 - List all tables:
 
@@ -157,7 +153,7 @@ Example:
 
 ---
 
-## 📦 Cloning the Repository
+## Cloning the Repository
 
 ```bash
 git clone https://github.com/yourusername/dart-vision-scoring.git
@@ -173,7 +169,7 @@ flutter pub get                      # If using Flutter frontend
 
 ---
 
-## ⚙️ Setting up the Environment
+## Setting up the Environment
 
 Create a Python environment called `jupyter` and install the required packages. This is necessary because the PHP scripts are configured to run inside this environment (on Linux).
 
@@ -181,7 +177,7 @@ Create a Python environment called `jupyter` and install the required packages. 
 
 ---
 
-## 🚀 Running the Application
+## Running the Application
 
 The app runs on a local web server.
 
@@ -197,7 +193,7 @@ Replace that with the IP of your local server.
 
 ---
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```bash
 dart-vision-scoring/
@@ -212,7 +208,7 @@ dart-vision-scoring/
 
 ---
 
-## ✅ Quick Start Summary
+## Quick Start Summary
 
 ```bash
 # 1. Install PostgreSQL
