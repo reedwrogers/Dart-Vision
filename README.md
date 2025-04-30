@@ -1,6 +1,6 @@
 # 🎯 Dart-Vision
 
-Welcome to **Dart-Vision** — a system for automatically capturing and scoring dart games using computer vision! This project was built for CS 445: *Computational Photography* at the University of Illinois Urbana-Champaign.
+Welcome to **Dart-Vision** — a system for automatically capturing and scoring dart games using computer vision! Specifically, we are attempting <strong>single-camera</strong> scoring. This project was built for CS 445: *Computational Photography* at the University of Illinois Urbana-Champaign.
 
 It was used as a learning experience to conclude our course and is still under development. The main goal was to gain hands-on experience with several key topics in computational photography through a real-world application.
 
