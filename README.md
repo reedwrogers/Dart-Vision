@@ -12,7 +12,7 @@ This repository is divided into two main parts:
 
 - **[main.ipynb](#mainipynb)** — our primary **Jupyter Notebook**, where we explored and tested multiple methods of detecting and scoring darts using computer vision. This was the core of our experimentation and learning.
   
-- **[Setting Up Your Dart Board](#setting-up-your-dart-board)** — the **production pipeline**, where we configure a working system to score darts in real-time using a phone camera, a local server, and a Postgres backend.
+- **[Setting Up Your Dart Board](#setting-up-your-dart-board)** — the **front-end web application**, where we configure a working system to score darts in real-time using a phone camera, a local server, and a Postgres backend.
 
 ---
 
