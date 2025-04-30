@@ -29,7 +29,7 @@ This repository is divided into two main parts:
   
 - **[Local Web App Implementation of Dart-Vision](#setting-up-your-dart-board)** — the **front-end web application**, where we configure a working system to score darts in real-time using a phone camera, a local server, and a Postgres backend. In this seciton, you can set up our system to run at home with your own dartboard.
 
-Put simply, main.ipynb contains the bulk of where our work was done for this project - look there for more information on our thought processes and ideas for dart-vision. The section for the web app is really just a proof-of-concept on how we might apply our methods into some sort of application for an end-user. If you have no interest in running the system locally, you can ignore that section, or simply view our video for an idea of how the system works on the front-end (<a href="https://github.com/reedwrogers/Dart-Vision/blob/main/Python%20Files/main.ipynb">here</a> ).
+Put simply, main.ipynb contains the bulk of where our work was done for this project - look there for more information on our thought processes and ideas for dart-vision. The section for the web app is really just a proof-of-concept on how we might apply our methods into some sort of application for an end-user. If you have no interest in running the system locally, you can ignore that section, or simply view our video for an idea of how the system works on the front-end (<a href="https://github.com/reedwrogers/Dart-Vision/blob/main/Python%20Files/main.ipynb">here</a>).
 
 ---
 
@@ -49,7 +49,17 @@ You can find the notebook inside the `Python Files/` directory, or click this li
 
 ---
 
-## Setting Up Your Dart Board <a id="setting-up-your-dart-board"></a>
+## Prerequisites <a id="setting-up-your-dart-board"></a>
+
+Before getting started, make sure you have the following:
+
+- A **Linux-based machine** to run the server and handle image processing tasks. A few commands in this readme, as well as sections of the PHP code assume Linux is being used. 
+- A **dart board** securely mounted and ready for play.
+- **Neon Yellow spray paint** to coat your darts for improved visibility in photos.
+
+---
+
+## Setting Up Your Dart Board 
 
 To achieve accurate scoring, make sure your dart board is properly set up:
 
@@ -58,6 +68,7 @@ To achieve accurate scoring, make sure your dart board is properly set up:
 3. **Calibration**: Place your ArUco markers in each corner of the dart board.
    - Use the "classic" dictionary.
    - Markers 7, 8, 9, and 10 should be used, generated from [https://chev.me/arucogen/](https://chev.me/arucogen/)
+   - Note: as our web-app uses the manual region detection method, you may need to play around with the distances of your ArUco marking for the best possible results.
 
 ---
 
@@ -170,29 +181,47 @@ Example:
 \d games
 ```
 
+At the end of this step, ensure that your Postgres database is up and running, such that the Python script we provide can connect to it.
+
 ---
 
 ## Cloning the Repository
 
 ```bash
-git clone https://github.com/yourusername/dart-vision-scoring.git
+git clone https://github.com/reedwrogers/Dart-Vision.git
 cd dart-vision-scoring
 ```
 
-Install dependencies:
-
-```bash
-pip install -r requirements.txt       # For Python backend
-flutter pub get                      # If using Flutter frontend
-```
+Certainly! Here's the revised and complete **"Setting up the Environment"** section with clear steps and bash commands:
 
 ---
 
 ## Setting up the Environment
 
-Create a Python environment called `jupyter` and install the required packages. This is necessary because the PHP scripts are configured to run inside this environment (on Linux).
+This project requires a Python virtual environment named `jupyter`. The PHP scripts are configured to run within this environment, so it must be activated on your Linux system.
 
-*TODO: Add specific environment setup instructions.*
+### 1. Create and Activate the Environment
+
+```bash
+# Install virtualenv if you don't have it
+pip install virtualenv
+
+# Create the 'jupyter' environment
+virtualenv jupyter
+
+# Activate the environment
+source jupyter/bin/activate
+```
+
+### 2. Install Required Dependencies
+
+Once the environment is activated, install all required Python packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+Your Python environment is now ready to run the backend scripts.
 
 ---
 
