@@ -1,0 +1,10 @@
+opencv-python
+Pillow
+matplotlib
+numpy
+scipy
+psycopg2-binary
+scikit-image
+segment-anything
+torch
+torchvision
