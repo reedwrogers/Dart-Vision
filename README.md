@@ -20,7 +20,7 @@ This repository is divided into two main parts:
 
 ---
 
-## 🧪 main.ipynb
+## 🧪 main.ipynb <a id="mainipynb"></a>
 
 In this notebook, we experimented with:
 
@@ -34,7 +34,7 @@ You can find the notebook inside the `Python Files/` directory. It documents the
 
 ---
 
-## 🛠️ Setting Up Your Dart Board
+## 🛠️ Setting Up Your Dart Board <a id="setting-up-your-dart-board"></a>
 
 To achieve accurate scoring, make sure your dart board is properly set up:
 
