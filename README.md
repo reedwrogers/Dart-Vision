@@ -227,9 +227,7 @@ Your Python environment is now ready to run the backend scripts.
 
 ## Running the Application
 
-The app runs on a local web server.
-
-*TODO: Add details on how you configured Apache (or other web server) to host this.*
+The app runs on a local web server. I would reccomend hosting it on your Linux device via Apache, and then redirecting Apache to look into this GitHub repository as its source. Doing so will allow you to vitit the local IP address of your Linux device, and then navigate to the `Web Interface` folder to be taken to our index.html file. 
 
 Once configured, you can visit your web app in a browser:
 
